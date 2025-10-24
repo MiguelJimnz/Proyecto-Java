@@ -23,6 +23,11 @@ public class Empleado {
     @OneToMany(mappedBy = "empleado", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Pedido> pedidos;
+    @OneToMany(mappedBy = "empleado", cascade = CascadeType.ALL)
+    private List<HorasTrabajadas> horasTrabajadas;
+
+    @OneToMany(mappedBy = "empleado", cascade = CascadeType.ALL)
+    private List<Transacciones> transacciones;
 
 
     public Empleado() {
