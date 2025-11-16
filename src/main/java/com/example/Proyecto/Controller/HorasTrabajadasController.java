@@ -9,7 +9,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/horas")
-@CrossOrigin(origins = "*")
 public class HorasTrabajadasController {
     private final HorasTrabajadasRepository repository;
 
