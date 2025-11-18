@@ -37,6 +37,9 @@ public class PedidoController {
     }
     @GetMapping("/estado/{estado}")
     public List<Pedido> getByEstado(@PathVariable String estado) {
-        return service.findByEstado(estado);
+        System.out.println("📦 Solicitando pedidos por estado: " + estado);
+        List<Pedido> pedidos = service.findByEstado(estado);
+        System.out.println("✅ Pedidos encontrados: " + pedidos.size() + " para estado: " + estado);
+        return pedidos;
     }
 }

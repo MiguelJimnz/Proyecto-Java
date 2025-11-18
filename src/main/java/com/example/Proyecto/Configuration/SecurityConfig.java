@@ -35,8 +35,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // permite sin autenticación
                         .requestMatchers(
-                                "/api/usuarios/login", "/api/usuarios/registro"
-                        ).permitAll()
+                                "/api/usuarios/login", "/api/usuarios/registro", "api/pedidos/**"                       ).permitAll()
                         .anyRequest().authenticated()
                 )
 
