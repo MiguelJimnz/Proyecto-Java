@@ -10,13 +10,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/pagos")
 public class PagoController {
     @Autowired
-    private PagoService service;
+    private PagoService pagoService;
     @Autowired
     private PagoRepository pagoRepository;
 
@@ -24,49 +25,43 @@ public class PagoController {
     private PedidoRepository pedidoRepository;
 
 
-    @GetMapping public List<Pago> getAll() { return service.findAll(); }
+    @GetMapping
+    public List<Pago> getAll() {
+        return pagoService.findAll();
+    }
 
-    @GetMapping("/{id}") public ResponseEntity<Pago> getById(@PathVariable Long id) {
-        Pago p = service.findById(id);
+    @GetMapping("/{id}")
+    public ResponseEntity<Pago> getById(@PathVariable Long id) {
+        Pago p = pagoService.findById(id); // ✅ Corregido
         return p != null ? ResponseEntity.ok(p) : ResponseEntity.notFound().build();
     }
-    @PutMapping("/{id}") public ResponseEntity<Pago> update(@PathVariable Long id, @RequestBody Pago p) {
-        if (service.findById(id) == null) return ResponseEntity.notFound().build();
-        p.setPagoId(id); return ResponseEntity.ok(service.save(p));
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Pago> update(@PathVariable Long id, @RequestBody Pago p) {
+        if (pagoService.findById(id) == null) return ResponseEntity.notFound().build(); // ✅ Corregido
+        p.setPagoId(id);
+        return ResponseEntity.ok(pagoService.save(p));
     }
-    @DeleteMapping("/{id}") public ResponseEntity<Void> delete(@PathVariable Long id) {
-        service.delete(id); return ResponseEntity.noContent().build();
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        pagoService.delete(id);
+        return ResponseEntity.noContent().build();
     }
-    /*@PostMapping("/pagos")
-    public Pago registrarPago(@RequestBody Pago pago) {
 
-        Pago pagoGuardado = PagoRepository.save(pago);
-
-
-        Pedido pedido = pago.getPedido();
-        if (pedido != null) {
-            pedido.setEstado("Pagado");
-            pedidoRepository.save(pedido);
-        }
-
-        return pagoGuardado;
-    }*/
     @PostMapping
-    public Pago registrarPago(@RequestBody Pago pago) {
-        System.out.println("ID del pedido recibido en el pago: " + pago.getPedido().getPedidoId());
-
-        Pago pagoGuardado = pagoRepository.save(pago);
-
-        Pedido pedido = pago.getPedido();
-        if (pedido != null) {
-            Optional<Pedido> pedidoBD = pedidoRepository.findById(pedido.getPedidoId());
-            if (pedidoBD.isPresent()) {
-                Pedido pedidoActual = pedidoBD.get();
-                pedidoActual.setEstado("Pagado");
-                pedidoRepository.save(pedidoActual);
-            }
+    public ResponseEntity<?> registrarPago(@RequestBody Pago pago) {
+        try {
+            System.out.println("📥 Recibiendo pago - Pedido ID: " + pago.getPedido().getPedidoId());
+            Pago pagoGuardado = pagoService.registrarPago(pago);
+            System.out.println("✅ Pago guardado exitosamente - ID: " + pagoGuardado.getPagoId());
+            return ResponseEntity.ok(pagoGuardado);
+        } catch (Exception e) {
+            System.out.println("❌ Error al registrar pago: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(
+                    Map.of("error", e.getMessage())
+            );
         }
-
-        return pagoGuardado;
     }
 }

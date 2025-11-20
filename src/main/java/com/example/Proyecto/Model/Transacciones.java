@@ -11,25 +11,34 @@ public class Transacciones {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idTransaccion;
 
-    private String tipo; // "Ingreso" o "Egreso"
+    @Enumerated(EnumType.STRING)
+    private TipoTransaccion tipo; // INGRESO o EGRESO
+
     private String descripcion;
     private Double monto;
+
+    @Column(name = "fecha_transaccion")
     private LocalDateTime fecha;
 
-    @ManyToOne
-    @JoinColumn(name = "empleado_id", nullable = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "empleado_id")
     private Empleado empleado;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "pago_id")
+    private Pago pago;
 
     public Transacciones() {
     }
 
-    public Transacciones(Long idTransaccion, String tipo, String descripcion, Double monto, LocalDateTime fecha, Empleado empleado) {
+    public Transacciones(Long idTransaccion, TipoTransaccion tipo, String descripcion, Double monto, LocalDateTime fecha, Empleado empleado, Pago pago) {
         this.idTransaccion = idTransaccion;
         this.tipo = tipo;
         this.descripcion = descripcion;
         this.monto = monto;
         this.fecha = fecha;
         this.empleado = empleado;
+        this.pago = pago;
     }
 
     public Long getIdTransaccion() {
@@ -40,11 +49,11 @@ public class Transacciones {
         this.idTransaccion = idTransaccion;
     }
 
-    public String getTipo() {
+    public TipoTransaccion getTipo() {
         return tipo;
     }
 
-    public void setTipo(String tipo) {
+    public void setTipo(TipoTransaccion tipo) {
         this.tipo = tipo;
     }
 
@@ -78,5 +87,13 @@ public class Transacciones {
 
     public void setEmpleado(Empleado empleado) {
         this.empleado = empleado;
+    }
+
+    public Pago getPago() {
+        return pago;
+    }
+
+    public void setPago(Pago pago) {
+        this.pago = pago;
     }
 }
