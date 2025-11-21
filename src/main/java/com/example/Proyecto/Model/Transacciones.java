@@ -1,5 +1,6 @@
 package com.example.Proyecto.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -22,10 +23,12 @@ public class Transacciones {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "empleado_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Empleado empleado;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pago_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Pago pago;
 
     public Transacciones() {
