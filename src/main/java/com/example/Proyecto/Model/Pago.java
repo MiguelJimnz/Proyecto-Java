@@ -17,6 +17,7 @@ public class Pago {
     private LocalDate fechaPago;
     private Double monto;
 
+
     @ManyToOne
     @JoinColumn(name = "pedido_id")
     @JsonBackReference
@@ -65,6 +66,8 @@ public class Pago {
     public void setMonto(Double monto) {
         this.monto = monto;
     }
+
+
 
     public Pedido getPedido() {
         return pedido;

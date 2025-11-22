@@ -19,9 +19,9 @@ public class PagoService {
     @Autowired
     private TransaccionService transaccionService;
 
-
     @Autowired
     private PedidoRepository pedidoRepository;
+
     public List<Pago> findAll() {
         return pagoRepository.findAll();
     }
@@ -38,7 +38,12 @@ public class PagoService {
         return pagoRepository.save(pago);
     }
 
-    @Transactional // ✅ CRÍTICO: Asegurar que todo se ejecute en una transacción
+    // ✅ NUEVO: Método para obtener pagos por pedido
+    public List<Pago> findByPedido(Long pedidoId) {
+        return pagoRepository.findByPedidoPedidoId(pedidoId);
+    }
+
+    @Transactional
     public Pago registrarPago(Pago pago) {
         System.out.println("💰 [INICIO] Registrando pago...");
         System.out.println("   - Pedido ID: " + pago.getPedido().getPedidoId());
@@ -76,5 +81,4 @@ public class PagoService {
             throw new RuntimeException("Error al registrar pago: " + e.getMessage(), e);
         }
     }
-
 }

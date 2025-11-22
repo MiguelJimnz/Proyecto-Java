@@ -1,7 +1,8 @@
 package com.example.Proyecto.Service;
 
-import com.example.Proyecto.Model.TipoTransaccion;
-import com.example.Proyecto.Model.Transacciones;
+import com.example.Proyecto.Model.*;
+import com.example.Proyecto.Repository.PagoRepository;
+import com.example.Proyecto.Repository.PedidoRepository;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.geom.PageSize;
@@ -49,6 +50,8 @@ import java.util.Map;
 public class PdfGeneratorService {
     @Autowired
     private TransaccionService transaccionService;
+    @Autowired
+    private PagoRepository pagoRepository;
 
     public byte[] generarReporteTransacciones(LocalDate inicio, LocalDate fin) throws Exception {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
@@ -205,5 +208,76 @@ public class PdfGeneratorService {
         }
 
         document.add(tabla);
+    }
+    public byte[] generarPdfPago(Long pagoId) throws Exception {
+        Pago pago = pagoRepository.findById(pagoId)
+                .orElseThrow(() -> new RuntimeException("Pago no encontrado: " + pagoId));
+
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            PdfWriter writer = new PdfWriter(baos);
+            PdfDocument pdfDoc = new PdfDocument(writer);
+            Document document = new Document(pdfDoc);
+
+            // Encabezado
+            document.add(new Paragraph("SASTRERÍA SHALOME")
+                    .setFontSize(20)
+                    .setBold()
+                    .setTextAlignment(TextAlignment.CENTER));
+
+            document.add(new Paragraph("COMPROBANTE DE PAGO")
+                    .setFontSize(16)
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setMarginBottom(20));
+
+            // Información del pago
+            document.add(new Paragraph("INFORMACIÓN DEL PAGO:").setBold());
+            document.add(new Paragraph("Número: " + pago.getPagoId()));
+            document.add(new Paragraph("Fecha: " + pago.getFechaPago()));
+            document.add(new Paragraph("Método: " + pago.getMetodo()));
+            document.add(new Paragraph("Monto: $" + String.format("%,.2f", pago.getMonto())));
+            // ✅ Sin cédula
+
+            document.add(new Paragraph(" ").setMarginBottom(10));
+
+            // Información del cliente
+            if (pago.getPedido() != null && pago.getPedido().getCliente() != null) {
+                document.add(new Paragraph("INFORMACIÓN DEL CLIENTE:").setBold());
+                document.add(new Paragraph("Nombre: " + pago.getPedido().getCliente().getNombre()));
+                document.add(new Paragraph("Teléfono: " + pago.getPedido().getCliente().getTelefono()));
+                document.add(new Paragraph("Email: " + pago.getPedido().getCliente().getCorreoElectronico()));
+            }
+
+            // Pie de página
+            document.add(new Paragraph("Comprobante generado el: " + LocalDateTime.now())
+                    .setFontSize(10)
+                    .setFontColor(com.itextpdf.kernel.colors.ColorConstants.GRAY));
+
+            document.close();
+            return baos.toByteArray();
+        }
+    }
+
+    private void agregarFilaTabla(Table tabla, String titulo, String valor) {
+        // Celda título
+        Cell cellTitulo = new Cell().add(new Paragraph(titulo));
+        cellTitulo.setBackgroundColor(com.itextpdf.kernel.colors.ColorConstants.LIGHT_GRAY);
+        tabla.addCell(cellTitulo);
+
+        // Celda valor
+        Cell cellValor = new Cell().add(new Paragraph(valor != null ? valor : "N/A"));
+        tabla.addCell(cellValor);
+    }
+
+    private Cell crearCelda(String texto) {
+        return crearCelda(texto, false);
+    }
+
+    private Cell crearCelda(String texto, boolean isHeader) {
+        Cell cell = new Cell().add(new Paragraph(texto));
+        if (isHeader) {
+            cell.setBackgroundColor(com.itextpdf.kernel.colors.ColorConstants.LIGHT_GRAY);
+            cell.setBold();
+        }
+        return cell;
     }
 }
