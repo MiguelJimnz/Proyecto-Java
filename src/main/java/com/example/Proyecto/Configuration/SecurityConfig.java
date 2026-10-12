@@ -35,7 +35,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // permite sin autenticación
                         .requestMatchers(
-                                "/api/usuarios/login", "/api/usuarios/registro"                     ).permitAll()
+                                "/api/usuarios/login", "/api/usuarios/registro",
+                                // swagger
+                                "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
 
